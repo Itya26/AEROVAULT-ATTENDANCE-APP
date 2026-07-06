@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "AEROVAULTT Attendance"
+version = "1.0.0"
+id = "artifacts/aerovaultt"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24565
+
+[services.development]
+run = "pnpm --filter @workspace/aerovaultt run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/aerovaultt", "run", "build" ]
+publicDir = "artifacts/aerovaultt/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24565"
+BASE_PATH = "/"

@@ -1,0 +1,422 @@
+# Project: AEROVAULTT Employee Attendance App
+
+## Objective
+
+Develop a modern, production-ready employee attendance application for **AEROVAULTT Intelligence Private Limited**.
+
+The application should allow employees to mark their own attendance only when they are physically present at the office using GPS-based geofencing.
+
+The UI should be clean, minimal, responsive, and suitable for both Android and desktop browsers.
+
+---
+
+# User Roles
+
+1. Employee
+2. HR
+3. Administrator
+
+---
+
+# Authentication
+
+* Secure login using Employee ID and Password.
+* JWT-based authentication.
+* Password reset feature.
+* Role-based access control.
+
+---
+
+# Employee Dashboard
+
+Display:
+
+* Welcome message
+* Current Date
+* Current Time (live)
+* Today's Attendance Status
+* Office Verification Status
+* Working Hours Today
+* Last Check-In Time
+* Last Check-Out Time
+
+---
+
+# GPS Location Verification
+
+When the employee opens the attendance page:
+
+* Request location permission.
+* Obtain the current GPS coordinates.
+* Compare the employee's location with the office location.
+
+Office Location should be configurable from the Admin Panel.
+
+Example:
+
+Latitude:
+(Admin configurable)
+
+Longitude:
+(Admin configurable)
+
+Allowed Radius:
+100 meters (configurable)
+
+If employee is inside the allowed radius:
+
+Display
+
+Office Location Verified
+
+Enable the Check In button.
+
+If outside:
+
+Display
+
+You are outside the office premises.
+
+Disable Check In.
+
+Store:
+
+* Latitude
+* Longitude
+* GPS Accuracy
+* Timestamp
+
+---
+
+# Attendance Workflow
+
+## Check In
+
+Employee presses Check In.
+
+Store:
+
+* Employee ID
+* Date
+* Check In Time
+* GPS Coordinates
+* GPS Accuracy
+* Device Information
+* Attendance Status
+
+Disable Check In after successful attendance.
+
+---
+
+## Check Out
+
+Employee presses Check Out.
+
+Store:
+
+* Check Out Time
+* Total Working Hours
+
+Attendance becomes completed.
+
+---
+
+# Attendance Rules
+
+One Check In per day.
+
+One Check Out per day.
+
+Prevent duplicate attendance.
+
+If employee forgets Check Out:
+
+HR can manually close attendance.
+
+---
+
+# Attendance History
+
+Employee should see
+
+Date
+
+Check In
+
+Check Out
+
+Working Hours
+
+Status
+
+Location Verified
+
+Search by month.
+
+Export PDF.
+
+---
+
+# Leave Module
+
+Employees can submit:
+
+* Casual Leave
+* Sick Leave
+* Permission
+* Work From Home (optional)
+
+Leave Request contains:
+
+Reason
+
+Date
+
+Attachment (optional)
+
+Status:
+
+Pending
+
+Approved
+
+Rejected
+
+---
+
+# HR Dashboard
+
+Dashboard Cards
+
+Present Today
+
+Absent
+
+Late Arrivals
+
+Leave Requests
+
+Employees Checked In
+
+Employees Yet To Check In
+
+Attendance Percentage
+
+---
+
+# Attendance Table
+
+Columns:
+
+Employee
+
+Department
+
+Check In
+
+Check Out
+
+Working Hours
+
+Status
+
+Location Verified
+
+GPS Coordinates
+
+Actions
+
+---
+
+# HR Features
+
+Approve Leave
+
+Reject Leave
+
+Manual Attendance Correction
+
+Export Excel
+
+Export PDF
+
+Attendance Reports
+
+Monthly Reports
+
+Department Reports
+
+---
+
+# Admin Panel
+
+Manage Employees
+
+Create Employee
+
+Edit Employee
+
+Deactivate Employee
+
+Reset Password
+
+Manage Departments
+
+Manage Office Locations
+
+Configure Geofence Radius
+
+Configure Office Timing
+
+Holiday Calendar
+
+Shift Timing
+
+---
+
+# Notifications
+
+Employee receives:
+
+Successful Check In
+
+Successful Check Out
+
+Leave Approved
+
+Leave Rejected
+
+Forgot to Check Out reminder
+
+---
+
+# Security
+
+Prevent attendance without GPS permission.
+
+Prevent attendance if GPS accuracy is poor (greater than configurable threshold).
+
+Detect mock/fake GPS where supported and reject attendance if detected.
+
+Use HTTPS.
+
+Encrypt passwords.
+
+JWT authentication.
+
+Audit logs for all attendance modifications.
+
+---
+
+# Database
+
+Employee
+
+Department
+
+Attendance
+
+Leave
+
+Holiday
+
+Notification
+
+OfficeLocation
+
+AuditLog
+
+---
+
+# Reports
+
+Daily Attendance
+
+Monthly Attendance
+
+Employee Attendance
+
+Late Arrivals
+
+Absent List
+
+Working Hours
+
+Leave Summary
+
+Download PDF
+
+Download Excel
+
+---
+
+# UI
+
+Modern Material Design.
+
+Company branding:
+
+AEROVAULTT Intelligence Private Limited
+
+Primary colors:
+
+Dark Blue
+
+White
+
+Sky Blue
+
+Responsive design for desktop, tablet, and mobile.
+
+Include Light Mode and Dark Mode.
+
+---
+
+# Recommended Technology
+
+Frontend
+
+* React
+* TypeScript
+* Tailwind CSS
+
+Backend
+
+* Node.js
+* Express.js
+
+Database
+
+* PostgreSQL
+
+Authentication
+
+* JWT
+
+Maps
+
+* Google Maps API or OpenStreetMap/Leaflet
+
+Deployment
+
+* Docker
+
+---
+
+# Future Expansion
+
+Design the architecture so this Attendance App becomes Module 1 of a larger internal platform called **CRM Next**.
+
+Future modules will include:
+
+* Recruitment
+* HR Management
+* Task Management
+* Inventory
+* Asset Management
+* Manufacturing
+* Finance
+* Project Management
+* SKYFORGE Workshop Management
+
+The codebase should therefore be modular, scalable, well-documented, and follow clean architecture principles with reusable components and APIs.

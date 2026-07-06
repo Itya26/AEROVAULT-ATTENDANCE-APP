@@ -3,13 +3,33 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: AEROVAULTT Attendance API specification
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication
+  - name: employees
+    description: Employee management
+  - name: departments
+    description: Department management
+  - name: officeLocations
+    description: Office location & geofence management
+  - name: attendance
+    description: Attendance tracking
+  - name: leaves
+    description: Leave requests
+  - name: holidays
+    description: Holiday calendar
+  - name: notifications
+    description: Notifications
+  - name: dashboard
+    description: Dashboard summaries
+security:
+  - bearerAuth: []
 paths:
   /healthz:
     get:
@@ -17,6 +37,7 @@ paths:
       tags: [health]
       summary: Health check
       description: Returns server health status
+      security: []
       responses:
         "200":
           description: Healthy
@@ -24,7 +45,653 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Log in with employee ID and password
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/me:
+    get:
+      operationId: getCurrentUser
+      tags: [auth]
+      summary: Get the currently authenticated employee
+      responses:
+        "200":
+          description: Current employee
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Employee"
+
+  /auth/change-password:
+    post:
+      operationId: changePassword
+      tags: [auth]
+      summary: Change own password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangePasswordInput"
+      responses:
+        "200":
+          description: Password changed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "401":
+          description: Current password incorrect
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /employees:
+    get:
+      operationId: listEmployees
+      tags: [employees]
+      summary: List employees (HR/Admin)
+      parameters:
+        - name: departmentId
+          in: query
+          schema: { type: integer }
+        - name: isActive
+          in: query
+          schema: { type: boolean }
+      responses:
+        "200":
+          description: List of employees
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Employee"
+    post:
+      operationId: createEmployee
+      tags: [employees]
+      summary: Create a new employee (Admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmployeeInput"
+      responses:
+        "201":
+          description: Employee created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Employee"
+
+  /employees/{id}:
+    get:
+      operationId: getEmployee
+      tags: [employees]
+      summary: Get an employee by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Employee
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Employee"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateEmployee
+      tags: [employees]
+      summary: Update an employee (Admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmployeeUpdate"
+      responses:
+        "200":
+          description: Updated employee
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Employee"
+
+  /employees/{id}/reset-password:
+    post:
+      operationId: resetEmployeePassword
+      tags: [employees]
+      summary: Reset an employee's password (Admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResetPasswordInput"
+      responses:
+        "200":
+          description: Password reset
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /employees/{id}/deactivate:
+    post:
+      operationId: deactivateEmployee
+      tags: [employees]
+      summary: Deactivate or reactivate an employee (Admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeactivateInput"
+      responses:
+        "200":
+          description: Updated employee
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Employee"
+
+  /departments:
+    get:
+      operationId: listDepartments
+      tags: [departments]
+      summary: List departments
+      responses:
+        "200":
+          description: List of departments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Department"
+    post:
+      operationId: createDepartment
+      tags: [departments]
+      summary: Create a department (Admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DepartmentInput"
+      responses:
+        "201":
+          description: Department created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Department"
+
+  /departments/{id}:
+    patch:
+      operationId: updateDepartment
+      tags: [departments]
+      summary: Update a department (Admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DepartmentInput"
+      responses:
+        "200":
+          description: Updated department
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Department"
+    delete:
+      operationId: deleteDepartment
+      tags: [departments]
+      summary: Delete a department (Admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "204":
+          description: Deleted
+
+  /office-locations:
+    get:
+      operationId: listOfficeLocations
+      tags: [officeLocations]
+      summary: List office locations
+      responses:
+        "200":
+          description: List of office locations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OfficeLocation"
+    post:
+      operationId: createOfficeLocation
+      tags: [officeLocations]
+      summary: Create an office location (Admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OfficeLocationInput"
+      responses:
+        "201":
+          description: Office location created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OfficeLocation"
+
+  /office-locations/{id}:
+    patch:
+      operationId: updateOfficeLocation
+      tags: [officeLocations]
+      summary: Update an office location (Admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OfficeLocationInput"
+      responses:
+        "200":
+          description: Updated office location
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OfficeLocation"
+    delete:
+      operationId: deleteOfficeLocation
+      tags: [officeLocations]
+      summary: Delete an office location (Admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "204":
+          description: Deleted
+
+  /attendance/today:
+    get:
+      operationId: getTodayAttendance
+      tags: [attendance]
+      summary: Get the current employee's attendance record for today
+      responses:
+        "200":
+          description: Today's attendance (fields null if not yet checked in)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Attendance"
+
+  /attendance/check-in:
+    post:
+      operationId: checkIn
+      tags: [attendance]
+      summary: Check in for today (requires geofence verification)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CheckInInput"
+      responses:
+        "201":
+          description: Checked in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Attendance"
+        "400":
+          description: Outside geofence, poor accuracy, or already checked in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /attendance/check-out:
+    post:
+      operationId: checkOut
+      tags: [attendance]
+      summary: Check out for today
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CheckOutInput"
+      responses:
+        "200":
+          description: Checked out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Attendance"
+        "400":
+          description: No active check-in found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /attendance/history:
+    get:
+      operationId: getAttendanceHistory
+      tags: [attendance]
+      summary: Get the current employee's attendance history
+      parameters:
+        - name: month
+          in: query
+          schema: { type: integer }
+        - name: year
+          in: query
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Attendance history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Attendance"
+
+  /attendance:
+    get:
+      operationId: listAttendance
+      tags: [attendance]
+      summary: List all attendance records (HR/Admin)
+      parameters:
+        - name: date
+          in: query
+          schema: { type: string, format: date }
+        - name: departmentId
+          in: query
+          schema: { type: integer }
+        - name: status
+          in: query
+          schema:
+            $ref: "#/components/schemas/AttendanceStatus"
+        - name: employeeId
+          in: query
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Attendance records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Attendance"
+
+  /attendance/{id}:
+    patch:
+      operationId: correctAttendance
+      tags: [attendance]
+      summary: Manually correct an attendance record (HR/Admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AttendanceCorrection"
+      responses:
+        "200":
+          description: Updated attendance record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Attendance"
+
+  /leaves:
+    get:
+      operationId: listLeaves
+      tags: [leaves]
+      summary: List leave requests (own for employees, all for HR/Admin)
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: "#/components/schemas/LeaveStatus"
+        - name: employeeId
+          in: query
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Leave requests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Leave"
+    post:
+      operationId: createLeave
+      tags: [leaves]
+      summary: Submit a leave request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LeaveInput"
+      responses:
+        "201":
+          description: Leave request created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Leave"
+
+  /leaves/{id}:
+    patch:
+      operationId: reviewLeave
+      tags: [leaves]
+      summary: Approve or reject a leave request (HR/Admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LeaveReview"
+      responses:
+        "200":
+          description: Updated leave request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Leave"
+
+  /holidays:
+    get:
+      operationId: listHolidays
+      tags: [holidays]
+      summary: List holidays
+      responses:
+        "200":
+          description: Holidays
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Holiday"
+    post:
+      operationId: createHoliday
+      tags: [holidays]
+      summary: Create a holiday (Admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HolidayInput"
+      responses:
+        "201":
+          description: Holiday created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Holiday"
+
+  /holidays/{id}:
+    delete:
+      operationId: deleteHoliday
+      tags: [holidays]
+      summary: Delete a holiday (Admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "204":
+          description: Deleted
+
+  /notifications:
+    get:
+      operationId: listNotifications
+      tags: [notifications]
+      summary: List the current employee's notifications
+      responses:
+        "200":
+          description: Notifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Notification"
+
+  /notifications/{id}/read:
+    patch:
+      operationId: markNotificationRead
+      tags: [notifications]
+      summary: Mark a notification as read
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Updated notification
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+
+  /dashboard/employee-summary:
+    get:
+      operationId: getEmployeeDashboardSummary
+      tags: [dashboard]
+      summary: Get the current employee's dashboard summary
+      responses:
+        "200":
+          description: Employee dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployeeDashboardSummary"
+
+  /dashboard/hr-summary:
+    get:
+      operationId: getHrDashboardSummary
+      tags: [dashboard]
+      summary: Get HR/Admin dashboard summary
+      responses:
+        "200":
+          description: HR dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HrDashboardSummary"
+
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     HealthStatus:
       type: object
@@ -34,3 +701,315 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error: { type: string }
+
+    MessageResponse:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string }
+
+    Role:
+      type: string
+      enum: [employee, hr, admin]
+
+    AttendanceStatus:
+      type: string
+      enum: [present, late, half_day, absent, on_leave]
+
+    LeaveType:
+      type: string
+      enum: [casual, sick, permission, wfh]
+
+    LeaveStatus:
+      type: string
+      enum: [pending, approved, rejected]
+
+    LoginInput:
+      type: object
+      required: [employeeId, password]
+      properties:
+        employeeId: { type: string }
+        password: { type: string }
+
+    ChangePasswordInput:
+      type: object
+      required: [currentPassword, newPassword]
+      properties:
+        currentPassword: { type: string }
+        newPassword: { type: string, minLength: 6 }
+
+    ResetPasswordInput:
+      type: object
+      required: [newPassword]
+      properties:
+        newPassword: { type: string, minLength: 6 }
+
+    DeactivateInput:
+      type: object
+      required: [isActive]
+      properties:
+        isActive: { type: boolean }
+
+    Employee:
+      type: object
+      required:
+        - id
+        - employeeId
+        - name
+        - email
+        - role
+        - isActive
+        - createdAt
+      properties:
+        id: { type: integer }
+        employeeId: { type: string }
+        name: { type: string }
+        email: { type: string }
+        phone: { type: ["string", "null"] }
+        role:
+          $ref: "#/components/schemas/Role"
+        departmentId: { type: ["integer", "null"] }
+        departmentName: { type: ["string", "null"] }
+        officeLocationId: { type: ["integer", "null"] }
+        officeLocationName: { type: ["string", "null"] }
+        shiftStart: { type: ["string", "null"] }
+        shiftEnd: { type: ["string", "null"] }
+        isActive: { type: boolean }
+        createdAt: { type: string, format: date-time }
+
+    EmployeeInput:
+      type: object
+      required: [employeeId, name, email, password, role]
+      properties:
+        employeeId: { type: string }
+        name: { type: string }
+        email: { type: string }
+        phone: { type: string }
+        password: { type: string, minLength: 6 }
+        role:
+          $ref: "#/components/schemas/Role"
+        departmentId: { type: integer }
+        officeLocationId: { type: integer }
+        shiftStart: { type: string }
+        shiftEnd: { type: string }
+
+    EmployeeUpdate:
+      type: object
+      properties:
+        name: { type: string }
+        email: { type: string }
+        phone: { type: string }
+        role:
+          $ref: "#/components/schemas/Role"
+        departmentId: { type: integer }
+        officeLocationId: { type: integer }
+        shiftStart: { type: string }
+        shiftEnd: { type: string }
+
+    AuthResponse:
+      type: object
+      required: [token, user]
+      properties:
+        token: { type: string }
+        user:
+          $ref: "#/components/schemas/Employee"
+
+    Department:
+      type: object
+      required: [id, name]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        employeeCount: { type: integer }
+
+    DepartmentInput:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1 }
+
+    OfficeLocation:
+      type: object
+      required: [id, name, latitude, longitude, radiusMeters]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        latitude: { type: number }
+        longitude: { type: number }
+        radiusMeters: { type: integer }
+
+    OfficeLocationInput:
+      type: object
+      required: [name, latitude, longitude, radiusMeters]
+      properties:
+        name: { type: string, minLength: 1 }
+        latitude: { type: number }
+        longitude: { type: number }
+        radiusMeters: { type: integer, minimum: 1 }
+
+    Attendance:
+      type: object
+      required:
+        - id
+        - employeeId
+        - employeeName
+        - date
+        - status
+        - locationVerified
+      properties:
+        id: { type: integer }
+        employeeId: { type: integer }
+        employeeName: { type: string }
+        departmentName: { type: ["string", "null"] }
+        date: { type: string, format: date }
+        checkInTime: { type: ["string", "null"], format: date-time }
+        checkInLatitude: { type: ["number", "null"] }
+        checkInLongitude: { type: ["number", "null"] }
+        checkInAccuracy: { type: ["number", "null"] }
+        checkOutTime: { type: ["string", "null"], format: date-time }
+        checkOutLatitude: { type: ["number", "null"] }
+        checkOutLongitude: { type: ["number", "null"] }
+        checkOutAccuracy: { type: ["number", "null"] }
+        workingHours: { type: ["number", "null"] }
+        status:
+          $ref: "#/components/schemas/AttendanceStatus"
+        locationVerified: { type: boolean }
+        deviceInfo: { type: ["string", "null"] }
+        notes: { type: ["string", "null"] }
+
+    CheckInInput:
+      type: object
+      required: [latitude, longitude, accuracy]
+      properties:
+        latitude: { type: number }
+        longitude: { type: number }
+        accuracy: { type: number }
+        deviceInfo: { type: string }
+
+    CheckOutInput:
+      type: object
+      required: [latitude, longitude, accuracy]
+      properties:
+        latitude: { type: number }
+        longitude: { type: number }
+        accuracy: { type: number }
+
+    AttendanceCorrection:
+      type: object
+      properties:
+        checkInTime: { type: string, format: date-time }
+        checkOutTime: { type: string, format: date-time }
+        status:
+          $ref: "#/components/schemas/AttendanceStatus"
+        notes: { type: string }
+
+    Leave:
+      type: object
+      required:
+        - id
+        - employeeId
+        - employeeName
+        - type
+        - startDate
+        - endDate
+        - reason
+        - status
+        - createdAt
+      properties:
+        id: { type: integer }
+        employeeId: { type: integer }
+        employeeName: { type: string }
+        type:
+          $ref: "#/components/schemas/LeaveType"
+        startDate: { type: string, format: date }
+        endDate: { type: string, format: date }
+        reason: { type: string }
+        attachmentUrl: { type: ["string", "null"] }
+        status:
+          $ref: "#/components/schemas/LeaveStatus"
+        reviewNotes: { type: ["string", "null"] }
+        createdAt: { type: string, format: date-time }
+
+    LeaveInput:
+      type: object
+      required: [type, startDate, endDate, reason]
+      properties:
+        type:
+          $ref: "#/components/schemas/LeaveType"
+        startDate: { type: string, format: date }
+        endDate: { type: string, format: date }
+        reason: { type: string, minLength: 1 }
+        attachmentUrl: { type: string }
+
+    LeaveReview:
+      type: object
+      required: [status]
+      properties:
+        status:
+          $ref: "#/components/schemas/LeaveStatus"
+        reviewNotes: { type: string }
+
+    Holiday:
+      type: object
+      required: [id, name, date]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        date: { type: string, format: date }
+
+    HolidayInput:
+      type: object
+      required: [name, date]
+      properties:
+        name: { type: string, minLength: 1 }
+        date: { type: string, format: date }
+
+    Notification:
+      type: object
+      required: [id, message, type, isRead, createdAt]
+      properties:
+        id: { type: integer }
+        message: { type: string }
+        type: { type: string }
+        isRead: { type: boolean }
+        createdAt: { type: string, format: date-time }
+
+    EmployeeDashboardSummary:
+      type: object
+      required:
+        - status
+        - checkInTime
+        - checkOutTime
+        - workingHoursToday
+        - officeVerified
+      properties:
+        status:
+          $ref: "#/components/schemas/AttendanceStatus"
+        checkInTime: { type: ["string", "null"], format: date-time }
+        checkOutTime: { type: ["string", "null"], format: date-time }
+        workingHoursToday: { type: ["number", "null"] }
+        officeVerified: { type: boolean }
+
+    HrDashboardSummary:
+      type: object
+      required:
+        - presentToday
+        - absentToday
+        - lateArrivals
+        - pendingLeaveRequests
+        - checkedIn
+        - yetToCheckIn
+        - attendancePercentage
+      properties:
+        presentToday: { type: integer }
+        absentToday: { type: integer }
+        lateArrivals: { type: integer }
+        pendingLeaveRequests: { type: integer }
+        checkedIn: { type: integer }
+        yetToCheckIn: { type: integer }
+        attendancePercentage: { type: number }

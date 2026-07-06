@@ -8,7 +8,7 @@ import {
 } from "@workspace/db";
 
 async function main() {
-  console.log("Seeding AEROVAULTT data...");
+  console.log("Seeding AEROVAULT data...");
 
   const [engineering] = await db
     .insert(departmentsTable)
@@ -22,7 +22,7 @@ async function main() {
   const [hq] = await db
     .insert(officeLocationsTable)
     .values({
-      name: "AEROVAULTT HQ",
+      name: "AEROVAULT HQ",
       latitude: 12.9716,
       longitude: 77.5946,
       radiusMeters: 200,
@@ -36,7 +36,7 @@ async function main() {
     .values({
       employeeId: "AV-ADMIN-001",
       name: "Ananya Rao",
-      email: "ananya.rao@aerovaultt.com",
+      email: "ananya.rao@aerovault.com",
       phone: "+91 90000 00001",
       passwordHash: password,
       role: "admin",
@@ -52,7 +52,7 @@ async function main() {
     .values({
       employeeId: "AV-HR-001",
       name: "Meera Iyer",
-      email: "meera.iyer@aerovaultt.com",
+      email: "meera.iyer@aerovault.com",
       phone: "+91 90000 00002",
       passwordHash: password,
       role: "hr",
@@ -68,7 +68,7 @@ async function main() {
     .values({
       employeeId: "AV-EMP-001",
       name: "Rahul Verma",
-      email: "rahul.verma@aerovaultt.com",
+      email: "rahul.verma@aerovault.com",
       phone: "+91 90000 00003",
       passwordHash: password,
       role: "employee",
@@ -84,7 +84,7 @@ async function main() {
     .values({
       employeeId: "AV-EMP-002",
       name: "Sneha Kapoor",
-      email: "sneha.kapoor@aerovaultt.com",
+      email: "sneha.kapoor@aerovault.com",
       phone: "+91 90000 00004",
       passwordHash: password,
       role: "employee",

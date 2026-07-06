@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { ShieldAlert, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import logoWordmark from "@assets/WhatsApp_Image_2026-025-06_at_8.57.03_AM_1783358569532.jpeg";
 
 const loginSchema = z.object({
   employeeId: z.string().min(1, "Employee ID is required"),
@@ -61,14 +62,9 @@ export default function Login() {
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         <div className="flex justify-center">
-          <div className="h-16 w-16 bg-primary rounded-xl flex items-center justify-center shadow-lg transform rotate-3 hover:rotate-0 transition-transform duration-300">
-            <span className="text-primary-foreground font-bold text-3xl font-mono">A</span>
-          </div>
+          <img src={logoWordmark} alt="AEROVAULT" className="h-12 w-auto object-contain" />
         </div>
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-foreground tracking-tight">
-          AEROVAULTT
-        </h2>
-        <p className="mt-2 text-center text-sm text-muted-foreground uppercase tracking-widest font-semibold">
+        <p className="mt-4 text-center text-sm text-muted-foreground uppercase tracking-widest font-semibold">
           Secure Attendance Portal
         </p>
       </div>

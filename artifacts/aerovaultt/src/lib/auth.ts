@@ -1,6 +1,6 @@
 import { setAuthTokenGetter } from "@workspace/api-client-react";
 
-const TOKEN_KEY = "aerovaultt_auth_token";
+const TOKEN_KEY = "aerovault_auth_token";
 
 export function setToken(token: string) {
   localStorage.setItem(TOKEN_KEY, token);

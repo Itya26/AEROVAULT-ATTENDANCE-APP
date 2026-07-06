@@ -1,13 +1,25 @@
 import { useRequireAuth } from "@/hooks/use-auth";
 import { Layout } from "@/components/layout";
 import { useGetAttendanceHistory, getGetAttendanceHistoryQueryKey } from "@workspace/api-client-react";
+import type { Attendance } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+import { Loader2, FileSpreadsheet, FileText } from "lucide-react";
+import { exportToExcel, exportToPdf, type ExportColumn } from "@/lib/export";
+
+const attendanceExportColumns: ExportColumn<Attendance>[] = [
+  { header: "Date", accessor: (r) => format(new Date(r.date), "yyyy-MM-dd") },
+  { header: "Check In", accessor: (r) => (r.checkInTime ? format(new Date(r.checkInTime), "HH:mm") : "--") },
+  { header: "Check Out", accessor: (r) => (r.checkOutTime ? format(new Date(r.checkOutTime), "HH:mm") : "--") },
+  { header: "Hours", accessor: (r) => (r.workingHours != null ? r.workingHours.toFixed(2) : "--") },
+  { header: "Status", accessor: (r) => r.status.replace("_", " ") },
+  { header: "Location", accessor: (r) => (r.locationVerified ? "Verified" : "Unverified") },
+];
 
 export default function Attendance() {
   const { user } = useRequireAuth();
@@ -28,6 +40,19 @@ export default function Attendance() {
 
   const years = Array.from({ length: 5 }, (_, i) => currentDate.getFullYear() - i);
 
+  const monthLabel = months.find((m) => m.value === month)?.label ?? "";
+  const exportFileName = `attendance_${user?.employeeId ?? "employee"}_${monthLabel}_${year}`;
+
+  const handleExportExcel = () => {
+    if (!attendanceHistory || attendanceHistory.length === 0) return;
+    exportToExcel(attendanceHistory, attendanceExportColumns, exportFileName, "Attendance");
+  };
+
+  const handleExportPdf = () => {
+    if (!attendanceHistory || attendanceHistory.length === 0) return;
+    exportToPdf(attendanceHistory, attendanceExportColumns, exportFileName, `Attendance — ${monthLabel} ${year}`);
+  };
+
   return (
     <Layout>
       <div className="space-y-6">
@@ -37,7 +62,7 @@ export default function Attendance() {
             <p className="text-muted-foreground mt-1">View your attendance records.</p>
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Select value={month.toString()} onValueChange={(v) => setMonth(parseInt(v))}>
               <SelectTrigger className="w-[140px]">
                 <SelectValue placeholder="Month" />
@@ -59,6 +84,25 @@ export default function Attendance() {
                 ))}
               </SelectContent>
             </Select>
+
+            <Button
+              variant="outline"
+              size="icon"
+              title="Export to Excel"
+              disabled={!attendanceHistory || attendanceHistory.length === 0}
+              onClick={handleExportExcel}
+            >
+              <FileSpreadsheet className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              title="Export to PDF"
+              disabled={!attendanceHistory || attendanceHistory.length === 0}
+              onClick={handleExportPdf}
+            >
+              <FileText className="h-4 w-4" />
+            </Button>
           </div>
         </div>
 

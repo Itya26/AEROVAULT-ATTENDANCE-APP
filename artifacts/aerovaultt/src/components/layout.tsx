@@ -9,6 +9,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useState } from "react";
+import logoIcon from "@assets/image_(8)_1783358569533.png";
 
 function NavLinks({ role, onClick }: { role?: string; onClick?: () => void }) {
   const [location] = useLocation();
@@ -61,10 +62,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
       {/* Mobile Header */}
       <div className="md:hidden flex items-center justify-between p-4 border-b bg-card">
         <div className="flex items-center gap-2">
-          <div className="h-8 w-8 bg-primary rounded-md flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-lg">A</span>
-          </div>
-          <span className="font-bold text-lg tracking-tight">AEROVAULTT</span>
+          <img src={logoIcon} alt="AEROVAULT" className="h-8 w-8 rounded-md" />
+          <span className="font-bold text-lg tracking-tight">AEROVAULT</span>
         </div>
         <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
           <SheetTrigger asChild>
@@ -75,10 +74,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <SheetContent side="left" className="w-64 flex flex-col">
             <div className="mb-6">
               <div className="flex items-center gap-2 mb-8">
-                <div className="h-8 w-8 bg-primary rounded-md flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold text-lg">A</span>
-                </div>
-                <span className="font-bold text-lg tracking-tight">AEROVAULTT</span>
+                <img src={logoIcon} alt="AEROVAULT" className="h-8 w-8 rounded-md" />
+                <span className="font-bold text-lg tracking-tight">AEROVAULT</span>
               </div>
               <NavLinks role={user?.role} onClick={() => setMobileMenuOpen(false)} />
             </div>
@@ -106,11 +103,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <aside className="hidden md:flex w-64 flex-col border-r bg-card h-screen sticky top-0">
         <div className="p-6">
           <div className="flex items-center gap-3 mb-8">
-            <div className="h-10 w-10 bg-primary rounded-lg flex items-center justify-center shadow-sm">
-              <span className="text-primary-foreground font-bold text-xl">A</span>
-            </div>
+            <img src={logoIcon} alt="AEROVAULT" className="h-10 w-10 rounded-lg shadow-sm" />
             <div>
-              <span className="block font-bold text-lg tracking-tight leading-none">AEROVAULTT</span>
+              <span className="block font-bold text-lg tracking-tight leading-none">AEROVAULT</span>
               <span className="block text-xs text-muted-foreground font-medium mt-1 uppercase tracking-wider">Attendance</span>
             </div>
           </div>

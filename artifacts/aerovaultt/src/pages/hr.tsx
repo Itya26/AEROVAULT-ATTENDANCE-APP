@@ -1,15 +1,35 @@
 import { useRequireAuth } from "@/hooks/use-auth";
 import { Layout } from "@/components/layout";
 import { useGetHrDashboardSummary, useListAttendance, useListLeaves, useReviewLeave, useCorrectAttendance, getListAttendanceQueryKey, getListLeavesQueryKey, getGetHrDashboardSummaryQueryKey } from "@workspace/api-client-react";
+import type { Attendance, Leave } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
-import { Users, UserCheck, UserX, Clock, CalendarDays } from "lucide-react";
+import { Users, UserCheck, UserX, Clock, CalendarDays, FileSpreadsheet, FileText } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { exportToExcel, exportToPdf, type ExportColumn } from "@/lib/export";
+
+const attendanceExportColumns: ExportColumn<Attendance>[] = [
+  { header: "Employee", accessor: (r) => r.employeeName },
+  { header: "Employee ID", accessor: (r) => r.employeeId },
+  { header: "Department", accessor: (r) => r.departmentName ?? "--" },
+  { header: "Check In", accessor: (r) => (r.checkInTime ? format(new Date(r.checkInTime), "HH:mm") : "--") },
+  { header: "Check Out", accessor: (r) => (r.checkOutTime ? format(new Date(r.checkOutTime), "HH:mm") : "--") },
+  { header: "Status", accessor: (r) => r.status.replace("_", " ") },
+];
+
+const leavesExportColumns: ExportColumn<Leave>[] = [
+  { header: "Employee", accessor: (r) => r.employeeName },
+  { header: "Type", accessor: (r) => r.type },
+  { header: "Start", accessor: (r) => format(new Date(r.startDate), "yyyy-MM-dd") },
+  { header: "End", accessor: (r) => format(new Date(r.endDate), "yyyy-MM-dd") },
+  { header: "Reason", accessor: (r) => r.reason },
+  { header: "Status", accessor: (r) => r.status },
+];
 
 export default function HrDashboard() {
   const { user } = useRequireAuth();
@@ -54,6 +74,28 @@ export default function HrDashboard() {
     } catch (error) {
       toast({ variant: "destructive", title: "Failed to review leave" });
     }
+  };
+
+  const today = format(new Date(), "yyyy-MM-dd");
+
+  const handleExportAttendanceExcel = () => {
+    if (!attendance || attendance.length === 0) return;
+    exportToExcel(attendance, attendanceExportColumns, `attendance_register_${today}`, "Attendance");
+  };
+
+  const handleExportAttendancePdf = () => {
+    if (!attendance || attendance.length === 0) return;
+    exportToPdf(attendance, attendanceExportColumns, `attendance_register_${today}`, `Daily Register — ${today}`);
+  };
+
+  const handleExportLeavesExcel = () => {
+    if (!leaves || leaves.length === 0) return;
+    exportToExcel(leaves, leavesExportColumns, `pending_leaves_${today}`, "Leaves");
+  };
+
+  const handleExportLeavesPdf = () => {
+    if (!leaves || leaves.length === 0) return;
+    exportToPdf(leaves, leavesExportColumns, `pending_leaves_${today}`, "Pending Leave Requests");
   };
 
   if (!user || (user.role !== "hr" && user.role !== "admin")) return null;
@@ -124,8 +166,28 @@ export default function HrDashboard() {
           
           <TabsContent value="attendance" className="mt-4">
             <Card>
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Daily Register</CardTitle>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    title="Export to Excel"
+                    disabled={!attendance || attendance.length === 0}
+                    onClick={handleExportAttendanceExcel}
+                  >
+                    <FileSpreadsheet className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    title="Export to PDF"
+                    disabled={!attendance || attendance.length === 0}
+                    onClick={handleExportAttendancePdf}
+                  >
+                    <FileText className="h-4 w-4" />
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="rounded-md border">
@@ -167,8 +229,28 @@ export default function HrDashboard() {
 
           <TabsContent value="leaves" className="mt-4">
             <Card>
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Leave Requests</CardTitle>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    title="Export to Excel"
+                    disabled={!leaves || leaves.length === 0}
+                    onClick={handleExportLeavesExcel}
+                  >
+                    <FileSpreadsheet className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    title="Export to PDF"
+                    disabled={!leaves || leaves.length === 0}
+                    onClick={handleExportLeavesPdf}
+                  >
+                    <FileText className="h-4 w-4" />
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="rounded-md border">

@@ -1,13 +1,15 @@
 import { useRequireAuth } from "@/hooks/use-auth";
 import { Layout } from "@/components/layout";
 import { useListLeaves, useCreateLeave, getListLeavesQueryKey } from "@workspace/api-client-react";
+import type { Leave } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { useState } from "react";
-import { Loader2, Plus } from "lucide-react";
+import { Loader2, Plus, FileSpreadsheet, FileText } from "lucide-react";
+import { exportToExcel, exportToPdf, type ExportColumn } from "@/lib/export";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -18,6 +20,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+
+const leaveExportColumns: ExportColumn<Leave>[] = [
+  { header: "Type", accessor: (r) => r.type },
+  { header: "Start", accessor: (r) => format(new Date(r.startDate), "yyyy-MM-dd") },
+  { header: "End", accessor: (r) => format(new Date(r.endDate), "yyyy-MM-dd") },
+  { header: "Reason", accessor: (r) => r.reason },
+  { header: "Status", accessor: (r) => r.status },
+];
 
 const leaveSchema = z.object({
   type: z.enum(["casual", "sick", "permission", "wfh"]),
@@ -156,8 +166,28 @@ export default function Leaves() {
         </div>
 
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>My Requests</CardTitle>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                title="Export to Excel"
+                disabled={!leaves || leaves.length === 0}
+                onClick={() => leaves && exportToExcel(leaves, leaveExportColumns, `my_leaves_${user?.employeeId ?? "employee"}`, "Leaves")}
+              >
+                <FileSpreadsheet className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                title="Export to PDF"
+                disabled={!leaves || leaves.length === 0}
+                onClick={() => leaves && exportToPdf(leaves, leaveExportColumns, `my_leaves_${user?.employeeId ?? "employee"}`, "My Leave Requests")}
+              >
+                <FileText className="h-4 w-4" />
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             {isLoading ? (

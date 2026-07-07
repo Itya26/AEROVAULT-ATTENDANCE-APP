@@ -1,6 +1,6 @@
 kind = "web"
 previewPath = "/"
-title = "AEROVAULTT Attendance"
+title = "AEROVAULT Attendance"
 version = "1.0.0"
 id = "artifacts/aerovaultt"
 router = "path"

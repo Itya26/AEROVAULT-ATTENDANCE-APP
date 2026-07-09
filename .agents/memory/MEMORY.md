@@ -1,3 +1,0 @@
-- [Orval query hooks require explicit queryKey](orval-query-hooks.md) — passing only `enabled` to a generated hook's `query` option fails typecheck; must also pass the matching `get*QueryKey()`.
-- [scripts package deps](scripts-package-deps.md) — new deps added to `scripts/package.json` need `pnpm install`, and non-cataloged packages must use an explicit version, not `catalog:`.
-- [Orval zod date query params](orval-zod-date-coercion.md) — `format: date`/`date-time` query/path params need `'date'` in orval's zod `coerce.query`/`coerce.param` lists or validation silently 400s.
